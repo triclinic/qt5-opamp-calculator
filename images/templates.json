@@ -1,0 +1,31 @@
+{
+    "OA_vref_420x540.png": {
+        "R1": {
+            "coordinates": [
+                50,
+                365
+            ],
+            "rotate": -90
+        },
+        "R2": {
+            "coordinates": [
+                360,
+                320
+            ],
+            "rotate": -90
+        },
+        "R3": {
+            "coordinates": [
+                360,
+                445
+            ],
+            "rotate": -90
+        },
+        "VD1": {
+            "coordinates": [
+                205,
+                25
+            ]
+        }
+    }
+}

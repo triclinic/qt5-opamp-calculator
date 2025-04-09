@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/OA_vref_420x540.png</file>
+    </qresource>
+</RCC>
