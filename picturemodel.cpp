@@ -14,15 +14,22 @@ QSize PictureModel::size() const
     return m_background.rect().size();
 }
 
-void PictureModel::setValueByName(const QString& name, const QString& value)
+bool PictureModel::setTextByName(const QString& name, const QString& value)
 {
     auto found = m_marks.find(name);
     if (found != m_marks.end()) {
         found.value().value = value;
+        return true;
     }
+    return false;
 }
 
-void PictureModel::render(QPainter & painter)
+bool PictureModel::isResizable() const
+{
+    return false;
+}
+
+void PictureModel::paint(QPainter & painter)
 {
     painter.drawPixmap(m_background.rect(), m_background);
     QFont resFont;

@@ -16,9 +16,8 @@ typedef _Bool bool;
 #endif
 #endif
 
-/* Standart SI prefixes */
-
-typedef int SIStandartValueOrder;
+typedef int IEC63StandartValueOrder;
+typedef uint16_t IEC63StandartValueMantissa;
 
 /* Standart IEC63 prefixes */
 typedef enum {
@@ -39,18 +38,18 @@ typedef enum {
 } IEC63StandartRoundingPolicy;
 
 typedef struct {
-    uint16_t mantissaTimesHundred;
-    SIStandartValueOrder order;
+    IEC63StandartValueMantissa mantissaTimesHundred;
+    IEC63StandartValueOrder order;
     IEC63StandartSeries series;
 } IEC63Standart3SigFigsValue;
 
-void standartValueDecompose(IEC63Standart3SigFigsValue *, double value, IEC63StandartSeries series, IEC63StandartRoundingPolicy);
-void standartValueSetSeries(IEC63Standart3SigFigsValue *, IEC63StandartSeries series);
-double standartValueCompose(const IEC63Standart3SigFigsValue *);
-void standartValueIncrement(IEC63Standart3SigFigsValue *);
-void standartValueDecrement(IEC63Standart3SigFigsValue *);
-bool standartValueEq(const IEC63Standart3SigFigsValue *, const IEC63Standart3SigFigsValue *);
-bool standartValueGt(const IEC63Standart3SigFigsValue *, const IEC63Standart3SigFigsValue *);
+void iec63StandartValueInit(IEC63Standart3SigFigsValue *, double value, IEC63StandartSeries series, IEC63StandartRoundingPolicy);
+void iec63StandartValueSetSeries(IEC63Standart3SigFigsValue *, IEC63StandartSeries series);
+double iec63StandartToDouble(const IEC63Standart3SigFigsValue *);
+void iec63StandartValueIncrement(IEC63Standart3SigFigsValue *);
+void iec63StandartValueDecrement(IEC63Standart3SigFigsValue *);
+bool iec63StandartValueEq(const IEC63Standart3SigFigsValue *, const IEC63Standart3SigFigsValue *);
+bool iec63StandartValueGt(const IEC63Standart3SigFigsValue *, const IEC63Standart3SigFigsValue *);
 
 #ifdef __cplusplus
 }

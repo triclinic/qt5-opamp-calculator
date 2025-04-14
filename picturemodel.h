@@ -11,8 +11,9 @@ class PictureModel
 public:
     PictureModel();
     QSize size() const;
-    void setValueByName(const QString& name, const QString& value);
-    void render(QPainter &);
+    bool setTextByName(const QString& name, const QString& text);
+    bool isResizable() const;
+    void paint(QPainter &);
 protected:
     struct Position
     {

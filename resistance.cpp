@@ -1,20 +1,23 @@
 #include "resistance.h"
 #include <QStringList>
 
-StandartResistance::StandartResistance(double v, ResistanceSeries s) : m_value()
+StandartResistance::StandartResistance(double v, ResistanceSeries s) : m_value(), m_isNan(v != v)
 {
-    standartValueDecompose(&m_value, v, (IEC63StandartSeries)s, IEC63StandartRoundingPolicyNearest);
+    if (m_isNan)
+        iec63StandartValueSetSeries(&m_value, (IEC63StandartSeries) s);
+    else
+        iec63StandartValueInit(&m_value, v, (IEC63StandartSeries)s, IEC63StandartRoundingPolicyNearest);
 }
 
 StandartResistance& StandartResistance::operator++()
 {
-    standartValueIncrement(&m_value);
+    iec63StandartValueIncrement(&m_value);
     return *this;
 }
 
 StandartResistance& StandartResistance::operator--()
 {
-    standartValueDecrement(&m_value);
+    iec63StandartValueDecrement(&m_value);
     return *this;
 }
 
@@ -30,7 +33,7 @@ bool StandartResistance::operator>(const StandartResistance & other) const
 
 void StandartResistance::setSeries(ResistanceSeries s)
 {
-    standartValueSetSeries(&m_value, (IEC63StandartSeries) s);
+    iec63StandartValueSetSeries(&m_value, (IEC63StandartSeries) s);
 }
 
 ResistanceSeries StandartResistance::getSeries() const
@@ -38,11 +41,12 @@ ResistanceSeries StandartResistance::getSeries() const
     return (ResistanceSeries) m_value.series;
 }
 
-static const QStringList ResistanceSuffix = {"<LOW>", "mOhm", "Ohm", "KOhm", "MOhm", "GOhm", "<HIGH>"};
+static const QStringList ResistanceSuffix = {"low!", "mOhm", "Ohm", "KOhm", "MOhm", "GOhm", "high!"};
 
 ResistanceRange StandartResistance::getRange() const
 {
-    if (m_value.order < -3) return ResistanceRange::TooLow;
+    if (m_value.order < -3)
+        return ResistanceRange::TooLow;
     int shiftedOrder = m_value.order + 3;
     int range = shiftedOrder / 3;
     if (range >= (int)ResistanceRange::TooHigh) return ResistanceRange::TooHigh;
@@ -62,24 +66,25 @@ ResistanceDecade StandartResistance::getDecade() const
 StandartResistance StandartResistance::operator++(int)
 {
     StandartResistance temp(*this);
-    standartValueIncrement(&m_value);
+    iec63StandartValueIncrement(&m_value);
     return temp;
 }
 
 StandartResistance StandartResistance::operator--(int)
 {
     StandartResistance temp(*this);
-    standartValueDecrement(&m_value);
+    iec63StandartValueDecrement(&m_value);
     return temp;
 }
 
 double StandartResistance::value() const
 {
-    return standartValueCompose(&m_value);
+    return iec63StandartToDouble(&m_value);
 }
 
 QString StandartResistance::toString(ResistanceStringStyle style) const
 {
+    if (m_isNan) return "nan!";
     const ResistanceRange range = getRange();
     const ResistanceDecade decade = getDecade();
     if (range == ResistanceRange::TooLow) {
@@ -88,6 +93,7 @@ QString StandartResistance::toString(ResistanceStringStyle style) const
         return ResistanceSuffix[ResistanceSuffix.size() - 1];
     }
     bool isPrecise = ( getSeries() > ResistanceSeries::E24 );
+    bool hasDelimiter = false;
     QString result, delimiter = ".";
 
     if ( style == ResistanceStringStyle::Scematic ) {
@@ -100,6 +106,7 @@ QString StandartResistance::toString(ResistanceStringStyle style) const
     case ResistanceDecade::Units:
         left = m_value.mantissaTimesHundred / 100;
         result = QString::number(left) + delimiter;
+        hasDelimiter = true;
         if (isPrecise) {
             right = m_value.mantissaTimesHundred - left * 100;
         } else {
@@ -113,6 +120,7 @@ QString StandartResistance::toString(ResistanceStringStyle style) const
         if (isPrecise) {
             right = m_value.mantissaTimesHundred - left * 10;
             result += delimiter + QString::number(right);
+            hasDelimiter = true;
         }
         break;
     case ResistanceDecade::Hundreds:
@@ -124,7 +132,7 @@ QString StandartResistance::toString(ResistanceStringStyle style) const
     }
     if ( style == ResistanceStringStyle::Ordinary ) {
         result += " " + ResistanceSuffix[(int)range];
-    } else if (range != ResistanceRange::Ohms) {
+    } else if ( !hasDelimiter && (range != ResistanceRange::Ohms) ) {
         result += delimiter;
     }
     return result;
@@ -132,7 +140,10 @@ QString StandartResistance::toString(ResistanceStringStyle style) const
 
 double StandartResistance::standartize(double value, ResistanceSeries ser)
 {
+    if (value != value) {
+        return value;
+    }
     IEC63Standart3SigFigsValue val = {};
-    standartValueDecompose(&val, value, (IEC63StandartSeries)ser, IEC63StandartRoundingPolicyNearest);
-    return standartValueCompose(&val);
+    iec63StandartValueInit(&val, value, (IEC63StandartSeries)ser, IEC63StandartRoundingPolicyNearest);
+    return iec63StandartToDouble(&val);
 }

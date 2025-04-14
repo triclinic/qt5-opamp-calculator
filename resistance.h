@@ -32,6 +32,7 @@ enum class ResistanceStringStyle {
 class StandartResistance
 {
     IEC63Standart3SigFigsValue m_value;
+    bool m_isNan;
 public:
     explicit StandartResistance(double, ResistanceSeries = ResistanceSeries::E24);
 
